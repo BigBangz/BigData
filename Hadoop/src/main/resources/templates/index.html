@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFS列表</title>
+    <!-- 引入Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- 引入jQuery和Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .hdfs-list {
+            display: flex;
+            align-items: center;
+        }
+        .upload-btn {
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="hdfs-list">
+        <h2>HDFS列表</h2>
+        <button class="btn btn-primary upload-btn">上传</button>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>路径</th>
+            <th>目录</th>
+            <th>修改时间</th>
+            <th>大小</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody id="list-data">
+        <!-- 列表数据将通过JavaScript动态生成 -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+    $(document).ready(function() {
+        $.ajax({
+            url: '/hdfs/findAll', // 替换为你的服务器URL
+            type: 'POST',
+            dataType: 'json',
+            success: function(data) {
+                var tableBody = $('#list-data');
+                $.each(data, function(index, item) {
+                    var row = '<tr>';
+                    row += '<td>' + item.Path + '</td>';
+                    row += '<td>' + item.Directory + '</td>';
+                    row += '<td>' + item.ModificationTime + '</td>';
+                    row += '<td>' + item.Len + '</td>';
+                    row += '<td><button class="btn btn-danger delete-btn" data-index="' + index + '">删除</button></td>';
+                    row += '</tr>';
+                    tableBody.append(row);
+                });
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+        });
+    });
+
+    // 为上传、删除按钮添加点击事件
+    $('.upload-btn').click(function(event) {
+        event.preventDefault(); // 阻止表单默认提交行为
+
+        var formData = new FormData(this); // 获取表单数据
+
+        $.ajax({
+            url: "/hdfs/uploadFile", // 后端接口地址
+            type: "POST",
+            data: formData,
+            processData: false, // 告诉jQuery不要处理数据
+            contentType: false, // 告诉jQuery不要设置Content-Type请求头
+            success: function (response) {
+                var result = JSON.parse(response).result;
+                if (result === "success") {
+                    alert("上传成功！"); // 显示上传成功提示信息
+                } else {
+                    alert("上传失败，请重试！"); // 显示上传失败提示信息
+                }
+            },
+            error: function () {
+                alert("上传失败，请重试！"); // 显示上传失败提示信息
+            }
+        });
+    });
+
+    $('.delete-btn').click(function() {
+        var index = $(this).data('index');
+        console.log('删除文件：', data[index].Path);
+        data.splice(index, 1); // 从数据中移除该文件
+        $('#list-data tr:eq(' + index + ')').remove(); // 从列表中移除该行
+    });
+</script>
+</body>
+</html>
