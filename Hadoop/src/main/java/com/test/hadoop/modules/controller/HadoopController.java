@@ -40,13 +40,19 @@ public class HadoopController {
         return ResponseEntity.ok("{\"result\": \"success\"}");
     }
 
-    @PostMapping("/findAll")
+    @GetMapping("/findByPath")
     @ResponseBody
-    public ResponseEntity<String> findAll() throws Exception {
-        List<Map<String, String>> all = operateService.findAll();
+    public ResponseEntity<String> findByPath(String path) {
+        List<Map<String, String>> all = operateService.findAll(path);
         Gson gson = new Gson();
         String allData = gson.toJson(all);
         return ResponseEntity.ok(allData);
+    }
+
+    @PostMapping("/deleteFile")
+    @ResponseBody
+    public ResponseEntity<Boolean> deleteFile(@RequestBody String path) throws Exception {
+        return ResponseEntity.ok(operateService.deleteFile(path));
     }
 
 

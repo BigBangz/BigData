@@ -13,9 +13,27 @@
         .hdfs-list {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .upload-btn {
+
+        .hdfs-list form {
+            display: flex;
+            align-items: center;
+        }
+        .btn-primary {
             margin-left: auto;
+            width: 70px;
+        }
+        .hdfs-list input[type="text"] {
+            width: 90%;
+            box-sizing: border-box;
+        }
+        table {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -23,11 +41,19 @@
 <div class="container">
     <div class="hdfs-list">
         <h2>HDFS列表</h2>
-        <button class="btn btn-primary upload-btn">上传</button>
+        <form id="uploadForm">
+            <input type="file" class="form-control-file" id="file" name="file">
+            <button type="submit" class="btn btn-primary">上传</button>
+        </form>
+    </div>
+    <div class="hdfs-list">
+        <input type="text" id="search-box" value="/" placeholder="搜索...">
+        <button class="btn btn-success search-btn">查询</button>
     </div>
     <table class="table table-bordered">
         <thead>
         <tr>
+            <th>名称</th>
             <th>路径</th>
             <th>目录</th>
             <th>修改时间</th>
@@ -43,32 +69,52 @@
 
 <script>
 
-    $(document).ready(function() {
+    // 定义公共查询方法
+    function loadFilesByPath(path) {
         $.ajax({
-            url: '/hdfs/findAll', // 替换为你的服务器URL
-            type: 'POST',
+            url: '/hdfs/findByPath', // 替换为你的服务器URL
+            type: 'GET',
+            data: {
+                path: path
+            },
             dataType: 'json',
-            success: function(data) {
+            success: function (data) {
                 var tableBody = $('#list-data');
-                $.each(data, function(index, item) {
+                tableBody.empty(); // 清空表格内容
+                $.each(data, function (index, item) {
                     var row = '<tr>';
-                    row += '<td>' + item.Path + '</td>';
+                    row += '<td>' + item.name + '</td>';
+                    if (item.Directory === "true") {
+                        row += '<td><a href="#" class="directory-link">' + item.Path + '</a></td>';
+                    } else {
+                        row += '<td>' + item.Path + '</td>';
+                    }
                     row += '<td>' + item.Directory + '</td>';
                     row += '<td>' + item.ModificationTime + '</td>';
                     row += '<td>' + item.Len + '</td>';
-                    row += '<td><button class="btn btn-danger delete-btn" data-index="' + index + '">删除</button></td>';
+                    row += '<td><button class="btn btn-danger delete-btn" data-index="' + index + '" onclick="loadFilesByPath("' + item.Path + '")">删除</button></td>';
                     row += '</tr>';
                     tableBody.append(row);
                 });
             },
-            error: function(error) {
+            error: function (error) {
                 console.log('Error:', error);
             }
         });
+    }
+
+    $(document).ready(function () {
+        loadFilesByPath("/"); // 调用函数，加载搜索结果
+    });
+
+    // 查询刷新页面
+    $('.search-btn').click(function () {
+        var searchPath = $('#search-box').val();
+        loadFilesByPath(searchPath); // 调用函数，加载搜索结果
     });
 
     // 为上传、删除按钮添加点击事件
-    $('.upload-btn').click(function(event) {
+    $("#uploadForm").on("submit", function (event) {
         event.preventDefault(); // 阻止表单默认提交行为
 
         var formData = new FormData(this); // 获取表单数据
@@ -83,6 +129,7 @@
                 var result = JSON.parse(response).result;
                 if (result === "success") {
                     alert("上传成功！"); // 显示上传成功提示信息
+                    loadFilesByPath("/");
                 } else {
                     alert("上传失败，请重试！"); // 显示上传失败提示信息
                 }
@@ -93,9 +140,8 @@
         });
     });
 
-    $('.delete-btn').click(function() {
+    $('.delete-btn').click(function () {
         var index = $(this).data('index');
-        console.log('删除文件：', data[index].Path);
         data.splice(index, 1); // 从数据中移除该文件
         $('#list-data tr:eq(' + index + ')').remove(); // 从列表中移除该行
     });
