@@ -1,0 +1,8 @@
+server:
+  #端口号
+  port: 8666
+spring:
+  application:
+    name: Flume
+  profiles:
+    active: dev

@@ -1,11 +1,8 @@
 package com.test.hadoop.modules.controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.test.hadoop.modules.service.HadoopOperateService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.hadoop.fs.FileStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +19,8 @@ public class HadoopController {
 
     @Autowired
     private HadoopOperateService operateService;
+
+    private final Gson gson = new Gson();
 
     @GetMapping("/upload")
     public ModelAndView uploadPage() {
@@ -44,7 +43,6 @@ public class HadoopController {
     @ResponseBody
     public ResponseEntity<String> findByPath(String path) {
         List<Map<String, String>> all = operateService.findAll(path);
-        Gson gson = new Gson();
         String allData = gson.toJson(all);
         return ResponseEntity.ok(allData);
     }
