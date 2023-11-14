@@ -6,3 +6,12 @@ spring:
     name: Flume
   profiles:
     active: dev
+
+# basic config
+log:
+  output:
+    base-path: D:\w_ideaWork\BigData\log
+
+# flume config
+flume:
+  master: 192.168.117.117:4444

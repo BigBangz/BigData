@@ -3,7 +3,6 @@ package com.test.flume.modules.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 
@@ -14,7 +13,8 @@ public class FlumeLogController {
 
     @GetMapping("")
     public ModelAndView index() {
-        log.info("進入頁面");
+        FlumeLog flumeLog = new FlumeLog();
+        flumeLog.info("进入登陆页面");
         return new ModelAndView("index");
     }
 

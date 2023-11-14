@@ -20,6 +20,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <!-- 过滤logback日志框架 -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -43,7 +50,7 @@
         <!-- 引入logback-flume的依赖 -->
         <dependency>
             <groupId>com.teambytes.logback</groupId>
-            <artifactId>logback-flume-appender_2.10</artifactId>
+            <artifactId>logback-flume-appender_2.11</artifactId>
             <version>0.0.9</version>
         </dependency>
     </dependencies>
